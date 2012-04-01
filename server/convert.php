@@ -1,9 +1,9 @@
 <?php
-$file = 'b2e.zip';
+$file = 'snd.mp3';
 
 if (file_exists($file)) {
     header('Content-Description: File Transfer');
-    header('Content-Type: application/octet-stream');
+    header('Content-Type: audio/mpeg3');
     header('Content-Disposition: attachment; filename='.basename($file));
     header('Content-Transfer-Encoding: binary');
     header('Expires: 0');
