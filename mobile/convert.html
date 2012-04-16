@@ -12,21 +12,40 @@
 $(document).ready(function(){
       window.URL = window.URL || window.webkitURL;
       $("#stopButton").hide();
+      $("#startButton").hide();
 
-      //Upload a file by posting a form
-      //Works in most browsers for uploading a file (except iOS)
       $("#uploadButton").click(function(e) {
           e.preventDefault();
           $("#fileChoose0").click();
       });
+
       $("#fileChoose0").live('change', function() {
-          $("#uploadFormPost").submit();
-          $("#stopButton").show();
+         var req = new XMLHttpRequest();
+         req.open("POST", "uppp.php", true);
+         req.onload = function(event) { 
+            if (req.readyState === 4) {  
+               if (req.status === 200) {  
+                  console.log(req.responseText);
+                  var au = document.getElementById('audio1');
+                  au.src = req.responseText;
+                  au.load();
+                  au.play();
+                  $("#stopButton").show();
+                  $("#startButton").show();
+               } else {  
+                  console.log("Error", req.statusText);  
+               }  
+            }  
+         };
+         var fd = new FormData(document.forms.namedItem("uploadForm")); 
+         req.send(fd);
       });
+
       $("#stopButton").click(function(e) {
           e.preventDefault();
           document.getElementById('audio1').pause();
       });
+
       $("#cameraButton").click(function(e) {
           alert("Not implemented yet");
       });
@@ -38,12 +57,13 @@ $(document).ready(function(){
  
 <body>
 <audio id="audio1" preload="auto">AUDIO</audio>
-<form id="uploadFormPost" enctype="multipart/form-data" action="uppp.php" method="POST" data-ajax='false'>
+<form id="uploadFormPost" name="uploadForm" enctype="multipart/form-data" action="uppp.php" method="POST" data-ajax='false'>
 <input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
-<input type="file" id="fileChoose0" name="uploadedfile" multiple="false" accept="image/jpeg;capture=camera" style="height:0;width:0;"/>
+<input type="file" id="fileChoose0" name="uploadedfile" multiple="false" accept="image/jpeg" style="height:0;width:0;"/>
 
 <a id="uploadButton" data-icon="arrow-u" data-inline="true" data-role="button" data-theme="b" data-iconpos="left">Upload an Image File</a>
-<a id="cameraButton" data-inline="true" data-role="button" data-theme="b" data-iconpos="left">Take a Picture</a>
+<!--a id="cameraButton" data-inline="true" data-role="button" data-theme="b" data-iconpos="left">Take a Picture</a -->
+<a id="startButton" data-icon="arrow-r" data-inline="true" data-role="button" data-theme="b" data-iconpos="left">Play</a>
 <a id="stopButton" data-icon="gear" data-inline="true" data-role="button" data-theme="b" data-iconpos="left">Stop</a>
 </form>
 </body>
