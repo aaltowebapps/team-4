@@ -46,6 +46,11 @@ $(document).ready(function(){
           document.getElementById('audio1').pause();
       });
 
+      $("#startButton").click(function(e) {
+          e.preventDefault();
+          document.getElementById('audio1').play();
+      });
+
       $("#cameraButton").click(function(e) {
           alert("Not implemented yet");
       });
