@@ -27,7 +27,9 @@ $(document).ready(function(){
                if (req.status === 200) {  
                   console.log(req.responseText);
                   var au = document.getElementById('audio1');
-                  au.src = req.responseText;
+                  var rsp = JSON.parse(req.responseText);
+                  $("#resImage").attr("src", rsp.img);
+                  au.src = rsp.snd;
                   au.load();
                   au.play();
                   $("#stopButton").show();
@@ -39,6 +41,23 @@ $(document).ready(function(){
          };
          var fd = new FormData(document.forms.namedItem("uploadForm")); 
          req.send(fd);
+
+          $.each(this.files, function (i,file){
+            if (!file.type.match(/image.*/)) {
+              return;
+            }
+
+            var reader = new FileReader();
+            reader.onload = (function(theFile) {
+              return function(e) {
+                 $("#srcImage").attr("data-file", theFile);
+                 $("#srcImage").attr("src", e.target.result);
+              };
+            })(file);
+            // Read in the image file as a data URL.
+            reader.readAsDataURL(file);
+          });
+
       });
 
       $("#stopButton").click(function(e) {
@@ -61,15 +80,20 @@ $(document).ready(function(){
 </head> 
  
 <body>
-<audio id="audio1" preload="auto">AUDIO</audio>
-<form id="uploadFormPost" name="uploadForm" enctype="multipart/form-data" action="uppp.php" method="POST" data-ajax='false'>
-<input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
-<input type="file" id="fileChoose0" name="uploadedfile" multiple="false" accept="image/jpeg" style="height:0;width:0;"/>
+<div align="center">
+  <img id="srcImage" width="200px"/>
+  <img id="resImage" width="200px"/>
+
+  <audio id="audio1" preload="auto">AUDIO</audio>
+  <form id="uploadFormPost" name="uploadForm" enctype="multipart/form-data" action="uppp.php" method="POST" data-ajax='false'>
+  <input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
+  <input type="file" id="fileChoose0" name="uploadedfile" multiple="false" accept="image/jpeg" style="height:0;width:0;"/>
 
 <a id="uploadButton" data-icon="arrow-u" data-inline="true" data-role="button" data-theme="b" data-iconpos="left">Upload an Image File</a>
 <!--a id="cameraButton" data-inline="true" data-role="button" data-theme="b" data-iconpos="left">Take a Picture</a -->
 <a id="startButton" data-icon="arrow-r" data-inline="true" data-role="button" data-theme="b" data-iconpos="left">Play</a>
 <a id="stopButton" data-icon="gear" data-inline="true" data-role="button" data-theme="b" data-iconpos="left">Stop</a>
+</div>
 </form>
 </body>
 </html>

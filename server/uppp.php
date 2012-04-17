@@ -25,8 +25,10 @@ if(move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $full_path)) {
 
     $file = $snd . '.mp3';
     if (file_exists($file)) {
-       shell_exec('rm ' . $img . ' ' . $snd);
-       echo "/uploads/data/" . $tmp_name . '.wav.mp3';
+       shell_exec('rm ' . $snd);
+       $s = "/uploads/data/" . $tmp_name . '.wav.mp3';
+       $i = "/uploads/data/b-" . $tmp_name;
+       echo " {\"snd\":\"".$s."\",\"img\":\"".$i."\"} ";
     }
 
 } else{
