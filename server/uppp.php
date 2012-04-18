@@ -32,6 +32,7 @@ if(move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $full_path)) {
     }
 
 } else{
+    header("HTTP/1.0 413 Request Entity Too Large");
     echo "There was an error uploading the file ".  basename( $_FILES['uploadedfile']['name']). ", please try again!";
 }
 
