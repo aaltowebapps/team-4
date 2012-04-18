@@ -20,6 +20,7 @@ $(document).ready(function(){
       });
 
       $("#fileChoose0").live('change', function() {
+         $("#infoDiv").hide();
          var req = new XMLHttpRequest();
          req.open("POST", "uppp.php", true);
          req.onload = function(event) { 
@@ -36,6 +37,7 @@ $(document).ready(function(){
                   $("#startButton").show();
                } else {  
                   console.log("Error", req.statusText);  
+                  alert(req.statusText);
                }  
             }  
          };
@@ -80,20 +82,66 @@ $(document).ready(function(){
 </head> 
  
 <body>
-<div align="center">
-  <img id="srcImage" width="200px"/>
-  <img id="resImage" width="200px"/>
+<div data-role="page" id="home" name="home">
+   <div align="center">
+      <a id="adButton" data-inline="false" data-role="button" 
+         href="http://victorx.eu" data-theme="a" data-corners="false">
+         Bitmaps and Waves</a>
+   </div><!-- header -->
 
-  <audio id="audio1" preload="auto">AUDIO</audio>
-  <form id="uploadFormPost" name="uploadForm" enctype="multipart/form-data" action="uppp.php" method="POST" data-ajax='false'>
-  <input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
-  <input type="file" id="fileChoose0" name="uploadedfile" multiple="false" accept="image/jpeg" style="height:0;width:0;"/>
+   <div align="center" data-role="content">
+      <div align="center" id="infoDiv">
+        This service converts images to sounds.
+      </div> <!-- info text -->
 
-<a id="uploadButton" data-icon="arrow-u" data-inline="true" data-role="button" data-theme="b" data-iconpos="left">Upload an Image File</a>
-<!--a id="cameraButton" data-inline="true" data-role="button" data-theme="b" data-iconpos="left">Take a Picture</a -->
-<a id="startButton" data-icon="arrow-r" data-inline="true" data-role="button" data-theme="b" data-iconpos="left">Play</a>
-<a id="stopButton" data-icon="gear" data-inline="true" data-role="button" data-theme="b" data-iconpos="left">Stop</a>
-</div>
-</form>
+      <img id="srcImage" width="200px"/>
+      <img id="resImage" width="200px"/>
+
+      <audio id="audio1" preload="auto">AUDIO</audio>
+      <form id="uploadFormPost" name="uploadForm" 
+            enctype="multipart/form-data" action="uppp.php" method="POST" 
+            data-ajax='false'>
+         <input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
+         <input type="file" id="fileChoose0" name="uploadedfile" 
+            multiple="false" accept="image/jpeg" style="height:0;width:0;"/>
+      </form>
+   </div> <!-- content -->
+
+   <div data-role="footer" align="center">
+      <a id="uploadButton" data-icon="arrow-u" data-inline="true" 
+         data-role="button" data-theme="b" 
+         data-iconpos="left">Upload an Image File</a>
+      <!--a id="cameraButton" data-inline="true" data-role="button" 
+         data-theme="b" data-iconpos="left">Take a Picture</a -->
+      <a id="startButton" data-icon="arrow-r" data-inline="true" 
+         data-role="button" data-theme="b" data-iconpos="left">Play</a>
+      <a id="stopButton" data-icon="delete" data-inline="true" 
+         data-role="button" data-theme="b" data-iconpos="left">Stop</a>
+      <a href="#options" data-icon="gear" data-inline="true"
+         data-role="button" data-theme="b">Options</a>
+   </div> <!-- footer -->
+</div> <!-- home page-->
+
+<div data-role="page" id="options" name="options">
+   <div align="center">
+      <a id="adButton" data-inline="false" data-role="button" 
+         href="http://victorx.eu" data-theme="a" data-corners="false">
+         Bitmaps and Waves</a>
+   </div><!-- header -->
+
+   <div data-role="content" align="center">
+
+<fieldset data-role="controlgroup" data-type="vertical" data-mini="false">
+<input type="checkbox" name="checkbox-1" id="checkbox-1" />
+<label for="checkbox-1">Simplify image</label>
+</fieldset>
+   </div> <!-- content -->
+
+   <div data-role="footer" align="center">
+      <a href="#home" data-icon="arrow-l" data-role="button"
+         data-inline="true" data-theme="b">Back</a>
+   </div> <!-- footer -->
+</div> <!-- options page-->
+
 </body>
 </html>
