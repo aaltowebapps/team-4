@@ -17,7 +17,11 @@ $full_path = $target_path . $tmp_name;
 
 if(move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $full_path)) {
 
-    shell_exec('./process.sh '. $full_path);
+    if (!empty($_POST["simplify"]) && $_POST["simplify"] == "yes") {
+       shell_exec('./process.sh '. $full_path);
+    } else {
+       shell_exec('./resize.sh '. $full_path);
+    }
     $img =  $target_path . 'b-' . $tmp_name;
     $snd =  $target_path . $tmp_name . '.wav';
     shell_exec('/var/www/uploads/bw1 -i' . $img . ' -o' . $snd);

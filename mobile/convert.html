@@ -21,6 +21,7 @@ $(document).ready(function(){
 
       $("#fileChoose0").live('change', function() {
          $("#infoDiv").hide();
+
          var req = new XMLHttpRequest();
          req.open("POST", "uppp.php", true);
          req.onload = function(event) { 
@@ -41,7 +42,12 @@ $(document).ready(function(){
                }  
             }  
          };
-         var fd = new FormData(document.forms.namedItem("uploadForm")); 
+         var form = document.forms.namedItem("uploadForm");
+
+//localStorage.getItem("");
+//localStorage.setItem("name", "Hello World!");
+
+         var fd = new FormData(form); 
          req.send(fd);
 
           $.each(this.files, function (i,file){
@@ -75,6 +81,12 @@ $(document).ready(function(){
       $("#cameraButton").click(function(e) {
           alert("Not implemented yet");
       });
+
+
+      $("#simplifyCheck").click(function() {
+       alert('Handler called. ' + $("#simplifyCheck"));
+      });
+
 });
 </script>
 
@@ -102,6 +114,10 @@ $(document).ready(function(){
             enctype="multipart/form-data" action="uppp.php" method="POST" 
             data-ajax='false'>
          <input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
+<!-- fieldset data-role="controlgroup" data-type="horizontal" data-mini="false" -->
+         <label for="simplify">Simplify image</label>
+         <input type="checkbox" name="simplify" id="simplify" value="yes" />
+<!-- /fieldset -->
          <input type="file" id="fileChoose0" name="uploadedfile" 
             multiple="false" accept="image/jpeg" style="height:0;width:0;"/>
       </form>
@@ -132,8 +148,8 @@ $(document).ready(function(){
    <div data-role="content" align="center">
 
 <fieldset data-role="controlgroup" data-type="vertical" data-mini="false">
-<input type="checkbox" name="checkbox-1" id="checkbox-1" />
-<label for="checkbox-1">Simplify image</label>
+<input type="checkbox" name="simplifyCheck" id="simplifyCheck" value="simplify"/>
+<label for="simplifyCheck">Simplify image</label>
 </fieldset>
    </div> <!-- content -->
 
