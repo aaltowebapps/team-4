@@ -10,6 +10,7 @@
 
 <script type="text/javascript">
 $(document).ready(function(){
+
       window.URL = window.URL || window.webkitURL;
       $("#stopButton").hide();
       $("#startButton").hide();
@@ -21,7 +22,6 @@ $(document).ready(function(){
 
       $("#fileChoose0").live('change', function() {
          $("#infoDiv").hide();
-
          var req = new XMLHttpRequest();
          req.open("POST", "uppp.php", true);
          req.onload = function(event) { 
@@ -37,15 +37,19 @@ $(document).ready(function(){
                   $("#stopButton").show();
                   $("#startButton").show();
                } else {  
-                  console.log("Error", req.statusText);  
-                  alert(req.statusText);
+                  var msg = req.statusText + "\r\n" + req.responseText;
+                  console.log("Error", msg);  
+                  alert(msg);
                }  
             }  
          };
-         var form = document.forms.namedItem("uploadForm");
 
-//localStorage.getItem("");
-//localStorage.setItem("name", "Hello World!");
+         // send conversion parameters in form data
+         $("#negateFlag").attr("value", localStorage.getItem("negate"));
+         $("#simplify").attr("value", localStorage.getItem("simplify"));
+
+         var form = document.forms.namedItem("uploadForm");
+//console.log(form);
 
          var fd = new FormData(form); 
          req.send(fd);
@@ -59,6 +63,7 @@ $(document).ready(function(){
             reader.onload = (function(theFile) {
               return function(e) {
                  $("#srcImage").attr("data-file", theFile);
+                 $("#srcImage").attr("title", theFile.name);
                  $("#srcImage").attr("src", e.target.result);
               };
             })(file);
@@ -82,11 +87,40 @@ $(document).ready(function(){
           alert("Not implemented yet");
       });
 
+      $("#saveButton").click(function(e) {
+          e.preventDefault();
+          if (document.getElementById("negateCheck").checked) {
+             localStorage.negate = "yes";
+	   } else {
+             localStorage.negate = "no";
+          }
 
-      $("#simplifyCheck").click(function() {
-       alert('Handler called. ' + $("#simplifyCheck"));
+          if (document.getElementById("simplifyCheck").checked) {
+             localStorage.simplify = "yes";
+	   } else {
+             localStorage.simplify = "no";
+          }
       });
 
+      function restoreOptions() { 
+          document.getElementById("negateCheck").checked = localStorage.negate == "yes";
+          document.getElementById("simplifyCheck").checked = localStorage.simplify == "yes";
+      }
+
+      $("#cancelButton").click(function(e) {
+          e.preventDefault();
+	   restoreOptions();
+          $("#negateCheck").checkboxradio('refresh');
+          $("#simplifyCheck").checkboxradio('refresh');
+      });
+
+      $("#optionsButton").click(function(e) {
+          e.preventDefault();
+	   restoreOptions();
+      });
+
+      // restore conversion options when the page is loaded
+      restoreOptions(); 
 });
 </script>
 
@@ -106,18 +140,16 @@ $(document).ready(function(){
         This service converts images to sounds.
       </div> <!-- info text -->
 
-      <img id="srcImage" width="200px"/>
-      <img id="resImage" width="200px"/>
+      <img id="srcImage" alt="" width="200px"/>
+      <img id="resImage" alt="" width="200px"/>
 
       <audio id="audio1" preload="auto">AUDIO</audio>
       <form id="uploadFormPost" name="uploadForm" 
             enctype="multipart/form-data" action="uppp.php" method="POST" 
             data-ajax='false'>
-         <input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
-<!-- fieldset data-role="controlgroup" data-type="horizontal" data-mini="false" -->
-         <label for="simplify">Simplify image</label>
-         <input type="checkbox" name="simplify" id="simplify" value="yes" />
-<!-- /fieldset -->
+         <input type="hidden" name="MAX_FILE_SIZE" value="400000" />
+         <input type="hidden" name="negate" id="negateFlag" value="yes" />
+         <input type="hidden" name="simplify" id="simplify" value="yes" />
          <input type="file" id="fileChoose0" name="uploadedfile" 
             multiple="false" accept="image/jpeg" style="height:0;width:0;"/>
       </form>
@@ -133,7 +165,7 @@ $(document).ready(function(){
          data-role="button" data-theme="b" data-iconpos="left">Play</a>
       <a id="stopButton" data-icon="delete" data-inline="true" 
          data-role="button" data-theme="b" data-iconpos="left">Stop</a>
-      <a href="#options" data-icon="gear" data-inline="true"
+      <a href="#options" id="optionsButton" data-icon="gear" data-inline="true"
          data-role="button" data-theme="b">Options</a>
    </div> <!-- footer -->
 </div> <!-- home page-->
@@ -147,15 +179,19 @@ $(document).ready(function(){
 
    <div data-role="content" align="center">
 
-<fieldset data-role="controlgroup" data-type="vertical" data-mini="false">
-<input type="checkbox" name="simplifyCheck" id="simplifyCheck" value="simplify"/>
+<fieldset data-role="controlgroup" data-role="fieldcontain" data-type="vertical" data-mini="false">
+<input type="checkbox" name="simplifyCheck" id="simplifyCheck" "/>
 <label for="simplifyCheck">Simplify image</label>
+<input type="checkbox" name="negateCheck" id="negateCheck"/>
+<label for="negateCheck">Negate image</label>
 </fieldset>
    </div> <!-- content -->
 
    <div data-role="footer" align="center">
-      <a href="#home" data-icon="arrow-l" data-role="button"
-         data-inline="true" data-theme="b">Back</a>
+      <a href="#home" id="cancelButton" data-icon="cancel" data-role="button"
+         data-inline="true" data-theme="b">Cancel</a>
+      <a href="#home" id="saveButton" data-icon="check" data-role="button"
+         data-inline="true" data-theme="b">Save</a>
    </div> <!-- footer -->
 </div> <!-- options page-->
 
