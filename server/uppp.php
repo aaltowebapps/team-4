@@ -23,6 +23,11 @@ if(move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $full_path)) {
        shell_exec('./resize.sh '. $full_path);
     }
     $img =  $target_path . 'b-' . $tmp_name;
+
+    if (!empty($_POST["negate"]) && $_POST["negate"] == "yes") {
+       shell_exec('./negate.sh '. $img);
+    }
+
     $snd =  $target_path . $tmp_name . '.wav';
     shell_exec('/var/www/uploads/bw1 -i' . $img . ' -o' . $snd);
     shell_exec('lame --quiet ' . $snd);
