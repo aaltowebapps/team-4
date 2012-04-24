@@ -12,6 +12,65 @@
 $(document).ready(function(){
 
       window.URL = window.URL || window.webkitURL;
+      
+      //Initialize the canvas
+      var canvas = $('#canvas')[0];
+      var ctx = canvas.getContext('2d');
+      canvas.width = $(window).width();
+      canvas.height = $(window).height();
+      var offsetX = $('#canvas').position().left;
+      var offsetY = $('#canvas').position().top;
+      
+
+      var colors  = ["red", "green", "yellow", "blue", "magenta", "orangered"];
+
+      //Hash table for storing the location of the fingers
+      var fingers = {};
+      
+      //At first touch initialize a new entry in the fingers list
+      $("#canvas").bind('touchstart', function(e) {
+        $.each(e.originalEvent.changedTouches, function(index, value) {
+          fingers[value.identifier] = {oldX: value.pageX, oldY: value.pageY, x: value.pageX, y: value.pageY};
+          fingers[value.identifier].color = colors[Math.floor(Math.random() * colors.length)];
+          
+        });
+      });
+      //Track the location of the fingers
+      $("#canvas").bind('touchmove', function(e) {
+        e.preventDefault();
+        $.each(e.originalEvent.changedTouches, function(index, value) {
+          fingers[value.identifier].x = value.pageX;
+          fingers[value.identifier].y = value.pageY;
+        });
+      });
+      //Remove the finger from the list
+      $("#canvas").bind('touchend', function(e) {
+        $.each(e.originalEvent.changedTouches, function(index, value) {
+          delete fingers[value.identifier];
+        });
+      });
+      function redraw() {
+        $.each(fingers, function(index, value) {
+          if (value.oldX != value.x || value.oldY != value.y ) {
+            ctx.beginPath();
+            ctx.moveTo(value.oldX-offsetX, value.oldY-offsetY);
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = value.color;
+            ctx.lineTo(value.x-offsetX,value.y-offsetY);
+            ctx.closePath();
+            ctx.stroke();
+            value.oldX = value.x;
+            value.oldY = value.y;
+          }
+        });
+      }
+      //Draw on the canvas every 15ms (about 60fps).
+      var timer = setInterval(function() {
+        redraw();
+      }, 15);
+      
+      
+      
       $("#stopButton").hide();
       $("#startButton").hide();
       $("#saveSoundButton").hide();
@@ -56,6 +115,11 @@ $(document).ready(function(){
          var form = document.forms.namedItem("uploadForm");
          //console.log(form);
 
+
+         var snapshot = ctx.canvas.toDataURL('image/png');
+         //snapshot contains the image taken from the canvas in Base64 encoding
+         //Now it needs to be uploaded to the server 
+         
          var fd = new FormData(form); 
          req.send(fd);
 
@@ -63,6 +127,7 @@ $(document).ready(function(){
             if (!file.type.match(/image.*/)) {
               return;
             }
+
 
             var reader = new FileReader();
             reader.onload = (function(theFile) {
@@ -147,8 +212,7 @@ $(document).ready(function(){
         This service converts images to sounds.
       </div> <!-- info text -->
 
-      <img id="srcImage" alt="" width="200px"/>
-      <img id="resImage" alt="" width="200px"/>
+      <canvas height='350' id='canvas' width='350'></canvas>
 
       <audio id="audio1" preload="auto">AUDIO</audio>
       <form id="uploadFormPost" name="uploadForm" 
