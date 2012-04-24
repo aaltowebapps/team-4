@@ -1,7 +1,7 @@
 Mobile Bitmaps and Waves
 
 The service is here:
-http://91.156.59.8/convert.php
+http://91.156.59.8/convert.html
 
 Known issues:
 1. It's impossible to upload the same image twice in succession because the file input event used is live('change').
