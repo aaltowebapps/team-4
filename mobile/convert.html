@@ -20,7 +20,13 @@ $(document).ready(function(){
       canvas.height = $(window).height();
       var offsetX = $('#canvas').position().left;
       var offsetY = $('#canvas').position().top;
-      
+
+ 
+ ctx.fillStyle = "rgb(200,0,0)";  
+ ctx.fillRect (10, 10, 55, 50);  
+  
+ ctx.fillStyle = "rgba(0, 0, 200, 0.5)";  
+ ctx.fillRect (30, 30, 55, 50);        
 
       var colors  = ["red", "green", "yellow", "blue", "magenta", "orangered"];
 
@@ -75,13 +81,7 @@ $(document).ready(function(){
       $("#startButton").hide();
       $("#saveSoundButton").hide();
 
-      $("#uploadButton").click(function(e) {
-          e.preventDefault();
-          $("#fileChoose0").click();
-      });
-
-      $("#fileChoose0").live('change', function() {
-         $("#infoDiv").hide();
+      function uploadForm(fd) {
          var req = new XMLHttpRequest();
          req.open("POST", "uppp.php", true);
          req.onload = function(event) { 
@@ -108,6 +108,32 @@ $(document).ready(function(){
             }  
          };
 
+         req.send(fd);
+      }
+
+      $("#sketchButton").click(function(e) {
+         e.preventDefault();
+         var snapshot = ctx.canvas.toDataURL('image/png');
+
+         //snapshot contains the image taken from the canvas in Base64 encoding
+         //Now it needs to be uploaded to the server
+         var fd = new FormData();
+         fd.append("negate", localStorage.getItem("negate"));
+         fd.append("simplify", "yes");
+         fd.append("MAX_FILE_SIZE", "400000");
+         fd.append("uploadedfile", snapshot);
+
+         uploadForm(fd);
+      });
+
+      $("#uploadButton").click(function(e) {
+          e.preventDefault();
+          $("#fileChoose0").click();
+      });
+
+      $("#fileChoose0").live('change', function() {
+         $("#infoDiv").hide();
+
          // send conversion parameters in form data
          $("#negateFlag").attr("value", localStorage.getItem("negate"));
          $("#simplify").attr("value", localStorage.getItem("simplify"));
@@ -115,19 +141,13 @@ $(document).ready(function(){
          var form = document.forms.namedItem("uploadForm");
          //console.log(form);
 
-
-         var snapshot = ctx.canvas.toDataURL('image/png');
-         //snapshot contains the image taken from the canvas in Base64 encoding
-         //Now it needs to be uploaded to the server 
-         
          var fd = new FormData(form); 
-         req.send(fd);
+         uploadForm(fd);
 
-          $.each(this.files, function (i,file){
+         $.each(this.files, function (i,file){
             if (!file.type.match(/image.*/)) {
               return;
             }
-
 
             var reader = new FileReader();
             reader.onload = (function(theFile) {
@@ -139,7 +159,7 @@ $(document).ready(function(){
             })(file);
             // Read in the image file as a data URL.
             reader.readAsDataURL(file);
-          });
+         });
 
       });
 
@@ -222,7 +242,7 @@ $(document).ready(function(){
          <input type="hidden" name="negate" id="negateFlag" value="yes" />
          <input type="hidden" name="simplify" id="simplify" value="yes" />
          <input type="file" id="fileChoose0" name="uploadedfile" 
-            multiple="false" accept="image/jpeg" style="height:0;width:0;"/>
+            multiple="false" accept="image/jpeg" capture="camera" style="height:0;width:0;"/>
       </form>
    </div> <!-- content -->
 
@@ -230,6 +250,9 @@ $(document).ready(function(){
       <a id="uploadButton" data-icon="arrow-u" data-inline="true" 
          data-role="button" data-theme="b" data-mini="false"
          data-iconpos="left">Upload an Image File</a>
+      <a id="sketchButton" data-icon="arrow-u" data-inline="true" 
+         data-role="button" data-theme="b" data-mini="false"
+         data-iconpos="left">Upload Sketch</a>
       <!--a id="cameraButton" data-inline="true" data-role="button" 
          data-theme="b" data-iconpos="left">Take a Picture</a -->
       <a id="startButton" data-icon="arrow-r" data-inline="true" 
