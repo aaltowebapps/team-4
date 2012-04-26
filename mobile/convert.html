@@ -122,8 +122,21 @@ $(document).ready(function(){
          fd.append("simplify", "yes");
          fd.append("MAX_FILE_SIZE", "400000");
          fd.append("uploadedfile", snapshot);
-
          uploadForm(fd);
+
+/* $.ajax({
+    url: 'uppp.php',
+    data: fd,
+    cache: false,
+    contentType: false,
+    processData: false,
+    type: 'POST',
+    success: function(data){
+        alert(data);
+    }
+});
+*/
+
       });
 
       $("#uploadButton").click(function(e) {
