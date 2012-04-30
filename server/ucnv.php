@@ -18,10 +18,10 @@ $full_path = $target_path . $tmp_name;
 $data = $_POST["uploadedfile"];
 $pos = strpos($data, ',');
 $data = substr( $data, $pos + 1 );
-$data = str_replace(' ','+', $data);
+// $data = str_replace(' ','+', $data);
 $decodata = base64_decode($data);
 
-if(file_put_contents( $full_path, $data )) {
+if(file_put_contents( $full_path, $decodata )) {
 
     if (!empty($_POST["simplify"]) && $_POST["simplify"] == "yes") {
        shell_exec('./process.sh '. $full_path);
