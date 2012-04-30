@@ -23,7 +23,7 @@ if(file_put_contents( $full_path, $decodata )) {
     if (file_exists($file)) {
        shell_exec('rm ' . $snd);
        $s = "/uploads/data/" . $tmp_name . '.wav.mp3';
-       $i = "/uploads/data/b-" . $tmp_name;
+       $i = "";
        echo " {\"snd\":\"".$s."\",\"img\":\"".$i."\"} ";
     }
 
