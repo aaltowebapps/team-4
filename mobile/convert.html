@@ -16,18 +16,31 @@ $(document).ready(function(){
       //Initialize the canvas
       var canvas = $('#canvas')[0];
       var ctx = canvas.getContext('2d');
-      canvas.width = $(window).width();
-      canvas.height = $(window).height();
+      var wd = canvas.width;
+      var ht = canvas.height;
+//      canvas.width = $(window).width();
+//      canvas.height = $(window).height();
       var offsetX = $('#canvas').position().left;
       var offsetY = $('#canvas').position().top;
 
- 
- ctx.fillStyle = "rgb(200,0,0)";  
- ctx.fillRect (10, 10, 55, 50);  
+      ctx.fillStyle = "rgb(255,255,255)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      var i=0;
+      for (i = 10; i < wd; i += wd/3)
+      {
+         var w = wd / 2;
+         var h = ht - i / 20;
+         var grd=ctx.createLinearGradient(i,0,i+w,0);
+         grd.addColorStop(0,"black");
+         grd.addColorStop(1,"white");
+         ctx.fillStyle=grd;
+         ctx.beginPath();  
+         ctx.moveTo(i, h-25);  
+         ctx.lineTo(i+w, h-50);  
+         ctx.lineTo(i+w, h);  
+         ctx.fill();  
+      }
   
- ctx.fillStyle = "rgba(0, 0, 200, 0.5)";  
- ctx.fillRect (30, 30, 55, 50);        
-
       var colors  = ["red", "green", "yellow", "blue", "magenta", "orangered"];
 
       //Hash table for storing the location of the fingers
@@ -75,11 +88,12 @@ $(document).ready(function(){
         redraw();
       }, 15);
       
-      
-      
-      $("#stopButton").hide();
-      $("#startButton").hide();
-      $("#saveSoundButton").hide();
+//      $("#stopButton").hide();
+//      $("#startButton").hide();
+//      $("#saveSoundButton").hide();
+//      $("#stopCnvButton").hide();
+//      $("#startCnvButton").hide();
+//      $("#saveSoundCnvButton").hide();
 
       function uploadForm(fd, php) {
          var req = new XMLHttpRequest();
@@ -88,18 +102,34 @@ $(document).ready(function(){
             if (req.readyState === 4) {  
                if (req.status === 200) {  
                   console.log(req.responseText);
-                  var au = document.getElementById('audio1');
+                  var au;
                   var rsp = JSON.parse(req.responseText);
-                  $("#resImage").attr("src", rsp.img);
+                  // for canvas uploads, there is no new image generated.
+                  // use the fact as a flag
+                  if (rsp.img) {
+                    au  = document.getElementById('audio1');
+                    // image file upload
+                    $("#resImage").attr("src", rsp.img);
+                    $("#stopButton").show();
+                    $("#startButton").show();
+                    var sb = $("#saveSoundButton");
+                    sb.show();
+                    sb.attr("href", "get.php?fname=." + rsp.snd);
+                    sb.attr("target", "_blank");
+                  } else {
+                    au = document.getElementById('audio2');
+                    // canvas upload
+                    $("#stopCnvButton").show();
+                    $("#startCnvButton").show();
+                    var sb = $("#saveSoundCnvButton");
+                    sb.show();
+                    sb.attr("href", "get.php?fname=." + rsp.snd);
+                    sb.attr("target", "_blank");
+                  }
                   au.src = rsp.snd;
                   au.load();
                   au.play();
-                  $("#stopButton").show();
-                  $("#startButton").show();
-                  var sb = $("#saveSoundButton");
-                  sb.show();
-                  sb.attr("href", "get.php?fname=." + rsp.snd);
-                  sb.attr("target", "_blank");
+
                } else {  
                   var msg = req.statusText + "\r\n" + req.responseText;
                   console.log("Error", msg);  
@@ -132,7 +162,6 @@ $(document).ready(function(){
       });
 
       $("#fileChoose0").live('change', function() {
-         $("#infoDiv").hide();
 
          // send conversion parameters in form data
          $("#negateFlag").attr("value", localStorage.getItem("negate"));
@@ -171,6 +200,16 @@ $(document).ready(function(){
       $("#startButton").click(function(e) {
           e.preventDefault();
           document.getElementById('audio1').play();
+      });
+
+      $("#stopCnvButton").click(function(e) {
+          e.preventDefault();
+          document.getElementById('audio2').pause();
+      });
+
+      $("#startCnvButton").click(function(e) {
+          e.preventDefault();
+          document.getElementById('audio2').play();
       });
 
       $("#cameraButton").click(function(e) {
@@ -214,25 +253,32 @@ $(document).ready(function(){
 });
 </script>
 
-<title>Mobile Bitmaps and Waves</title> 
+<title>Bitmaps and Waves</title> 
 </head> 
  
 <body>
 <div data-role="page" id="home" name="home">
    <div align="center">
-      <a id="adButton" data-inline="true" data-role="button" 
-         href="http://victorx.eu" data-theme="a" data-corners="false">
-         Bitmaps and Waves</a>
+      <a id="uploadButton" data-icon="arrow-u" data-inline="true" 
+         data-role="button" data-theme="b"
+         data-iconpos="left">Upload an Image File</a>
+      <!--a id="cameraButton" data-inline="true" data-role="button" 
+         data-theme="b" data-iconpos="left">Take a Picture</a -->
+      <a href="#sketch" id="optionsButton" data-icon="grid" data-inline="true"
+         data-role="button" data-theme="b">Sketch</a>
+      <a id="startButton" data-icon="arrow-r" data-role="button"
+         data-inline="true" data-theme="b" data-iconpos="left">Play</a>
+      <a id="stopButton" data-icon="delete" data-role="button"
+         data-inline="true" data-theme="b" data-iconpos="left">Pause</a>
+      <a id="saveSoundButton" data-icon="arrow-d" data-inline="true"
+         data-role="button" data-theme="b">Save</a>
       <a href="#options" id="optionsButton" data-icon="gear" data-inline="true"
-         data-role="button" data-mini="false" data-theme="b">Options</a>
+         data-role="button" data-theme="b">Options</a>
    </div><!-- header -->
 
    <div align="center" data-role="content">
-      <div align="center" id="infoDiv">
-        This service converts images to sounds.
-      </div> <!-- info text -->
-
-      <canvas height='350' id='canvas' width='350'></canvas>
+      <img id="srcImage" alt="" width="200px">
+      <img id="resImage" alt="" width="200px">
 
       <audio id="audio1" preload="auto">AUDIO</audio>
       <form id="uploadFormPost" name="uploadForm" 
@@ -246,43 +292,55 @@ $(document).ready(function(){
       </form>
    </div> <!-- content -->
 
-   <div data-role="footer" align="center">
-      <a id="uploadButton" data-icon="arrow-u" data-inline="true" 
-         data-role="button" data-theme="b" data-mini="false"
-         data-iconpos="left">Upload an Image File</a>
-      <a id="sketchButton" data-icon="arrow-u" data-inline="true" 
-         data-role="button" data-theme="b" data-mini="false"
-         data-iconpos="left">Upload Sketch</a>
-      <!--a id="cameraButton" data-inline="true" data-role="button" 
-         data-theme="b" data-iconpos="left">Take a Picture</a -->
-      <a id="startButton" data-icon="arrow-r" data-inline="true" 
-         data-role="button" data-theme="b" data-iconpos="left">Play</a>
-      <a id="stopButton" data-icon="delete" data-inline="true" 
-         data-role="button" data-theme="b" data-iconpos="left">Stop</a>
-      <a href="#options" id="saveSoundButton" data-icon="arrow-d" data-inline="true"
-         data-role="button" data-theme="b">Save</a>
+   <div align="center">
+
    </div> <!-- footer -->
 </div> <!-- home page-->
 
-<div data-role="page" id="options" name="options">
+
+<div data-role="page" id="sketch" name="sketch">
    <div align="center">
-      <a id="adButton" data-inline="false" data-role="button" 
-         href="http://victorx.eu" data-theme="a" data-corners="false">
-         Bitmaps and Waves</a>
+      <a id="sketchButton" data-icon="arrow-u" data-role="button"
+         data-inline="true" data-theme="b" 
+         data-iconpos="left">Upload Sketch</a>
+      <a id="startCnvButton" data-icon="arrow-r" data-role="button" 
+         data-inline="true" data-theme="b" data-iconpos="left">Play</a>
+      <a id="stopCnvButton" data-icon="delete" data-role="button"
+         data-inline="true" data-theme="b" data-iconpos="left">Pause</a>
+      <a id="saveSoundCnvButton" data-icon="arrow-d" data-role="button"
+         data-inline="true" data-theme="b" data-iconpos="left">Save</a>
+      <a href="#home" data-icon="home" data-role="button"
+         data-inline="true" data-theme="b" data-iconpos="left">Home</a>
    </div><!-- header -->
 
    <div data-role="content" align="center">
-
-<fieldset data-role="controlgroup" data-role="fieldcontain" data-type="vertical" data-mini="false">
-<input type="checkbox" name="simplifyCheck" id="simplifyCheck" "/>
-<label for="simplifyCheck">Simplify image</label>
-<input type="checkbox" name="negateCheck" id="negateCheck"/>
-<label for="negateCheck">Negate image</label>
-</fieldset>
+      <canvas height='350' id='canvas' width='350'></canvas>
+      <audio id="audio2" preload="auto">AUDIO</audio>
    </div> <!-- content -->
 
-   <div data-role="footer" align="center">
-      <a href="#home" id="cancelButton" data-icon="arrow-l" data-role="button"
+   <div align="center">
+
+   </div> <!-- footer -->
+</div> <!-- sketch page-->
+
+<div data-role="page" id="options" name="options">
+   <div align="center">
+      <!-- a data-inline="false" data-role="button" 
+         href="http://victorx.eu" data-theme="a" data-corners="false">
+         Bitmaps and Waves</a -->
+   </div><!-- header -->
+
+   <div data-role="content" align="center">
+        <fieldset data-role="controlgroup" data-role="fieldcontain" data-type="vertical">
+          <input type="checkbox" name="simplifyCheck" id="simplifyCheck"/>
+          <label for="simplifyCheck">Simplify image</label>
+          <input type="checkbox" name="negateCheck" id="negateCheck"/>
+          <label for="negateCheck">Negate image</label>
+        </fieldset>
+   </div> <!-- content -->
+
+   <div align="center">
+      <a href="#home" id="cancelButton" data-icon="back" data-role="button"
          data-inline="true" data-theme="b">Cancel</a>
       <a href="#home" id="saveButton" data-icon="check" data-role="button"
          data-inline="true" data-theme="b">Save</a>
