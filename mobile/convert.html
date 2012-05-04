@@ -12,35 +12,122 @@
 $(document).ready(function(){
 
       window.URL = window.URL || window.webkitURL;
-      $("#stopButton").hide();
-      $("#startButton").hide();
-      $("#saveSoundButton").hide();
+      
+      //Initialize the canvas
+      var canvas = $('#canvas')[0];
+      var ctx = canvas.getContext('2d');
+      var wd = canvas.width;
+      var ht = canvas.height;
+//      canvas.width = $(window).width();
+//      canvas.height = $(window).height();
+      var offsetX = $('#canvas').position().left;
+      var offsetY = $('#canvas').position().top;
 
-      $("#uploadButton").click(function(e) {
-          e.preventDefault();
-          $("#fileChoose0").click();
+      ctx.fillStyle = "rgb(255,255,255)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      var i=0;
+      for (i = 10; i < wd; i += wd/3)
+      {
+         var w = wd / 2;
+         var h = ht - i / 20;
+         var grd=ctx.createLinearGradient(i,0,i+w,0);
+         grd.addColorStop(0,"black");
+         grd.addColorStop(1,"white");
+         ctx.fillStyle=grd;
+         ctx.beginPath();  
+         ctx.moveTo(i, h-25);  
+         ctx.lineTo(i+w, h-50);  
+         ctx.lineTo(i+w, h);  
+         ctx.fill();  
+      }
+  
+      var colors  = ["red", "green", "yellow", "blue", "magenta", "orangered"];
+
+      //Hash table for storing the location of the fingers
+      var fingers = {};
+      
+      //At first touch initialize a new entry in the fingers list
+      $("#canvas").bind('touchstart', function(e) {
+        $.each(e.originalEvent.changedTouches, function(index, value) {
+          fingers[value.identifier] = {oldX: value.pageX, oldY: value.pageY, x: value.pageX, y: value.pageY};
+          fingers[value.identifier].color = colors[Math.floor(Math.random() * colors.length)];
+          
+        });
       });
+      //Track the location of the fingers
+      $("#canvas").bind('touchmove', function(e) {
+        e.preventDefault();
+        $.each(e.originalEvent.changedTouches, function(index, value) {
+          fingers[value.identifier].x = value.pageX;
+          fingers[value.identifier].y = value.pageY;
+        });
+      });
+      //Remove the finger from the list
+      $("#canvas").bind('touchend', function(e) {
+        $.each(e.originalEvent.changedTouches, function(index, value) {
+          delete fingers[value.identifier];
+        });
+      });
+      function redraw() {
+        $.each(fingers, function(index, value) {
+          if (value.oldX != value.x || value.oldY != value.y ) {
+            ctx.beginPath();
+            ctx.moveTo(value.oldX-offsetX, value.oldY-offsetY);
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = value.color;
+            ctx.lineTo(value.x-offsetX,value.y-offsetY);
+            ctx.closePath();
+            ctx.stroke();
+            value.oldX = value.x;
+            value.oldY = value.y;
+          }
+        });
+      }
+      //Draw on the canvas every 15ms (about 60fps).
+      var timer = setInterval(function() {
+        redraw();
+      }, 15);
+      
+document.getElementById('navbar1').style.display="none";
+document.getElementById('navbar2').style.display="none";
+//      $("#stopButton").attr("data-theme", "e").button("refresh");
+//      $("#startButton").attr("disabled", true).button("refresh");
+//      $("#saveSoundButton").attr("disabled", true).button("refresh");
+//      $("#stopCnvButton").attr("disabled", true).button("refresh");
+//      $("#startCnvButton").attr("disabled", true).button("refresh");
+//      $("#saveSoundCnvButton").attr("disabled", true).button("refresh");
 
-      $("#fileChoose0").live('change', function() {
-         $("#infoDiv").hide();
+      function uploadForm(fd, php) {
          var req = new XMLHttpRequest();
-         req.open("POST", "uppp.php", true);
+         req.open("POST", php, true);
          req.onload = function(event) { 
             if (req.readyState === 4) {  
                if (req.status === 200) {  
                   console.log(req.responseText);
-                  var au = document.getElementById('audio1');
+                  var au;
                   var rsp = JSON.parse(req.responseText);
-                  $("#resImage").attr("src", rsp.img);
+                  // for canvas uploads, there is no new image generated.
+                  // use the fact as a flag
+                  if (rsp.img) {
+                    au  = document.getElementById('audio1');
+                    // image file upload
+                    $("#resImage").attr("src", rsp.img);
+                    var sb = $("#saveSoundButton");
+                    sb.attr("href", "get.php?fname=." + rsp.snd);
+                    sb.attr("target", "_blank");
+                    document.getElementById("navbar1").style.display="block";
+                  } else {
+                    au = document.getElementById('audio2');
+                    // canvas upload
+                    var sb = $("#saveSoundCnvButton");
+                    sb.attr("href", "get.php?fname=." + rsp.snd);
+                    sb.attr("target", "_blank");
+                    document.getElementById("navbar2").style.display="block";
+                  }
                   au.src = rsp.snd;
                   au.load();
                   au.play();
-                  $("#stopButton").show();
-                  $("#startButton").show();
-                  var sb = $("#saveSoundButton");
-                  sb.show();
-                  sb.attr("href", "get.php?fname=." + rsp.snd);
-                  sb.attr("target", "_blank");
+
                } else {  
                   var msg = req.statusText + "\r\n" + req.responseText;
                   console.log("Error", msg);  
@@ -48,6 +135,31 @@ $(document).ready(function(){
                }  
             }  
          };
+
+         req.send(fd);
+      }
+
+      $("#sketchButton").click(function(e) {
+         e.preventDefault();
+         var snapshot = ctx.canvas.toDataURL('image/png');
+
+         //snapshot contains the image taken from the canvas in Base64 encoding
+         //Now it needs to be uploaded to the server
+         var fd = new FormData();
+         fd.append("negate", localStorage.getItem("negate"));
+         fd.append("simplify", "yes");
+         fd.append("MAX_FILE_SIZE", "400000");
+         fd.append("uploadedfile", snapshot);
+         uploadForm(fd, 'ucnv.php');
+
+      });
+
+      $("#uploadButton").click(function(e) {
+          e.preventDefault();
+          $("#fileChoose0").click();
+      });
+
+      $("#fileChoose0").live('change', function() {
 
          // send conversion parameters in form data
          $("#negateFlag").attr("value", localStorage.getItem("negate"));
@@ -57,9 +169,9 @@ $(document).ready(function(){
          //console.log(form);
 
          var fd = new FormData(form); 
-         req.send(fd);
+         uploadForm(fd, 'uppp.php');
 
-          $.each(this.files, function (i,file){
+         $.each(this.files, function (i,file){
             if (!file.type.match(/image.*/)) {
               return;
             }
@@ -74,7 +186,7 @@ $(document).ready(function(){
             })(file);
             // Read in the image file as a data URL.
             reader.readAsDataURL(file);
-          });
+         });
 
       });
 
@@ -86,6 +198,16 @@ $(document).ready(function(){
       $("#startButton").click(function(e) {
           e.preventDefault();
           document.getElementById('audio1').play();
+      });
+
+      $("#stopCnvButton").click(function(e) {
+          e.preventDefault();
+          document.getElementById('audio2').pause();
+      });
+
+      $("#startCnvButton").click(function(e) {
+          e.preventDefault();
+          document.getElementById('audio2').play();
       });
 
       $("#cameraButton").click(function(e) {
@@ -129,26 +251,26 @@ $(document).ready(function(){
 });
 </script>
 
-<title>Mobile Bitmaps and Waves</title> 
+<title>Bitmaps and Waves</title> 
 </head> 
  
 <body>
 <div data-role="page" id="home" name="home">
    <div align="center">
-      <a id="adButton" data-inline="true" data-role="button" 
-         href="http://victorx.eu" data-theme="a" data-corners="false">
-         Bitmaps and Waves</a>
+      <a id="uploadButton" data-icon="arrow-u" data-inline="true" 
+         data-role="button" data-theme="b"
+         data-iconpos="left">Upload an Image File</a>
+      <!--a id="cameraButton" data-inline="true" data-role="button" 
+         data-theme="b" data-iconpos="left">Take a Picture</a -->
+      <a href="#sketch" id="optionsButton" data-icon="grid" data-inline="true"
+         data-role="button" data-theme="b">Sketch</a>
       <a href="#options" id="optionsButton" data-icon="gear" data-inline="true"
-         data-role="button" data-mini="false" data-theme="b">Options</a>
+         data-role="button" data-theme="b">Options</a>
    </div><!-- header -->
 
    <div align="center" data-role="content">
-      <div align="center" id="infoDiv">
-        This service converts images to sounds.
-      </div> <!-- info text -->
-
-      <img id="srcImage" alt="" width="200px"/>
-      <img id="resImage" alt="" width="200px"/>
+      <img id="srcImage" alt="" width="200px">
+      <img id="resImage" alt="" width="200px">
 
       <audio id="audio1" preload="auto">AUDIO</audio>
       <form id="uploadFormPost" name="uploadForm" 
@@ -162,40 +284,60 @@ $(document).ready(function(){
       </form>
    </div> <!-- content -->
 
-   <div data-role="footer" align="center">
-      <a id="uploadButton" data-icon="arrow-u" data-inline="true" 
-         data-role="button" data-theme="b" data-mini="false"
-         data-iconpos="left">Upload an Image File</a>
-      <!--a id="cameraButton" data-inline="true" data-role="button" 
-         data-theme="b" data-iconpos="left">Take a Picture</a -->
-      <a id="startButton" data-icon="arrow-r" data-inline="true" 
-         data-role="button" data-theme="b" data-iconpos="left">Play</a>
-      <a id="stopButton" data-icon="delete" data-inline="true" 
-         data-role="button" data-theme="b" data-iconpos="left">Stop</a>
-      <a href="#options" id="saveSoundButton" data-icon="arrow-d" data-inline="true"
+   <div align="center" id="navbar1" data-role="footer">
+      <a id="startButton" data-icon="arrow-r" data-role="button"
+         data-inline="true" data-theme="b" data-iconpos="left">Play</a>
+      <a id="stopButton" data-icon="delete" data-role="button"
+         data-inline="true" data-theme="b" data-iconpos="left" 
+         disabled="disabled">Pause</a>
+      <a id="saveSoundButton" data-icon="arrow-d" data-inline="true"
          data-role="button" data-theme="b">Save</a>
    </div> <!-- footer -->
 </div> <!-- home page-->
 
-<div data-role="page" id="options" name="options">
+
+<div data-role="page" id="sketch" name="sketch">
    <div align="center">
-      <a id="adButton" data-inline="false" data-role="button" 
-         href="http://victorx.eu" data-theme="a" data-corners="false">
-         Bitmaps and Waves</a>
+      <a id="sketchButton" data-icon="arrow-u" data-role="button"
+         data-inline="true" data-theme="b" 
+         data-iconpos="left">Upload Sketch</a>
+      <a href="#home" data-icon="home" data-role="button"
+         data-inline="true" data-theme="b" data-iconpos="left">Home</a>
    </div><!-- header -->
 
    <div data-role="content" align="center">
-
-<fieldset data-role="controlgroup" data-role="fieldcontain" data-type="vertical" data-mini="false">
-<input type="checkbox" name="simplifyCheck" id="simplifyCheck" "/>
-<label for="simplifyCheck">Simplify image</label>
-<input type="checkbox" name="negateCheck" id="negateCheck"/>
-<label for="negateCheck">Negate image</label>
-</fieldset>
+      <canvas height='350' id='canvas' width='350'></canvas>
+      <audio id="audio2" preload="auto">AUDIO</audio>
    </div> <!-- content -->
 
-   <div data-role="footer" align="center">
-      <a href="#home" id="cancelButton" data-icon="arrow-l" data-role="button"
+   <div align="center" id="navbar2" data-role="footer">
+      <a id="startCnvButton" data-icon="arrow-r" data-role="button" 
+         data-inline="true" data-theme="b" data-iconpos="left">Play</a>
+      <a id="stopCnvButton" data-icon="delete" data-role="button"
+         data-inline="true" data-theme="b" data-iconpos="left">Pause</a>
+      <a id="saveSoundCnvButton" data-icon="arrow-d" data-role="button"
+         data-inline="true" data-theme="b" data-iconpos="left">Save</a>
+   </div> <!-- footer -->
+</div> <!-- sketch page-->
+
+<div data-role="page" id="options" name="options">
+   <div align="center">
+      <!-- a data-inline="false" data-role="button" 
+         href="http://victorx.eu" data-theme="a" data-corners="false">
+         Bitmaps and Waves</a -->
+   </div><!-- header -->
+
+   <div data-role="content" align="center">
+        <fieldset data-role="controlgroup" data-role="fieldcontain" data-type="vertical">
+          <input type="checkbox" name="simplifyCheck" id="simplifyCheck"/>
+          <label for="simplifyCheck">Simplify image</label>
+          <input type="checkbox" name="negateCheck" id="negateCheck"/>
+          <label for="negateCheck">Negate image</label>
+        </fieldset>
+   </div> <!-- content -->
+
+   <div align="center" data-role="footer">
+      <a href="#home" id="cancelButton" data-icon="back" data-role="button"
          data-inline="true" data-theme="b">Cancel</a>
       <a href="#home" id="saveButton" data-icon="check" data-role="button"
          data-inline="true" data-theme="b">Save</a>
