@@ -88,12 +88,14 @@ $(document).ready(function(){
         redraw();
       }, 15);
       
-//      $("#stopButton").hide();
-//      $("#startButton").hide();
-//      $("#saveSoundButton").hide();
-//      $("#stopCnvButton").hide();
-//      $("#startCnvButton").hide();
-//      $("#saveSoundCnvButton").hide();
+document.getElementById('navbar1').style.display="none";
+document.getElementById('navbar2').style.display="none";
+//      $("#stopButton").attr("data-theme", "e").button("refresh");
+//      $("#startButton").attr("disabled", true).button("refresh");
+//      $("#saveSoundButton").attr("disabled", true).button("refresh");
+//      $("#stopCnvButton").attr("disabled", true).button("refresh");
+//      $("#startCnvButton").attr("disabled", true).button("refresh");
+//      $("#saveSoundCnvButton").attr("disabled", true).button("refresh");
 
       function uploadForm(fd, php) {
          var req = new XMLHttpRequest();
@@ -110,21 +112,17 @@ $(document).ready(function(){
                     au  = document.getElementById('audio1');
                     // image file upload
                     $("#resImage").attr("src", rsp.img);
-                    $("#stopButton").show();
-                    $("#startButton").show();
                     var sb = $("#saveSoundButton");
-                    sb.show();
                     sb.attr("href", "get.php?fname=." + rsp.snd);
                     sb.attr("target", "_blank");
+                    document.getElementById("navbar1").style.display="block";
                   } else {
                     au = document.getElementById('audio2');
                     // canvas upload
-                    $("#stopCnvButton").show();
-                    $("#startCnvButton").show();
                     var sb = $("#saveSoundCnvButton");
-                    sb.show();
                     sb.attr("href", "get.php?fname=." + rsp.snd);
                     sb.attr("target", "_blank");
+                    document.getElementById("navbar2").style.display="block";
                   }
                   au.src = rsp.snd;
                   au.load();
@@ -266,12 +264,6 @@ $(document).ready(function(){
          data-theme="b" data-iconpos="left">Take a Picture</a -->
       <a href="#sketch" id="optionsButton" data-icon="grid" data-inline="true"
          data-role="button" data-theme="b">Sketch</a>
-      <a id="startButton" data-icon="arrow-r" data-role="button"
-         data-inline="true" data-theme="b" data-iconpos="left">Play</a>
-      <a id="stopButton" data-icon="delete" data-role="button"
-         data-inline="true" data-theme="b" data-iconpos="left">Pause</a>
-      <a id="saveSoundButton" data-icon="arrow-d" data-inline="true"
-         data-role="button" data-theme="b">Save</a>
       <a href="#options" id="optionsButton" data-icon="gear" data-inline="true"
          data-role="button" data-theme="b">Options</a>
    </div><!-- header -->
@@ -292,8 +284,14 @@ $(document).ready(function(){
       </form>
    </div> <!-- content -->
 
-   <div align="center">
-
+   <div align="center" id="navbar1" data-role="footer">
+      <a id="startButton" data-icon="arrow-r" data-role="button"
+         data-inline="true" data-theme="b" data-iconpos="left">Play</a>
+      <a id="stopButton" data-icon="delete" data-role="button"
+         data-inline="true" data-theme="b" data-iconpos="left" 
+         disabled="disabled">Pause</a>
+      <a id="saveSoundButton" data-icon="arrow-d" data-inline="true"
+         data-role="button" data-theme="b">Save</a>
    </div> <!-- footer -->
 </div> <!-- home page-->
 
@@ -303,12 +301,6 @@ $(document).ready(function(){
       <a id="sketchButton" data-icon="arrow-u" data-role="button"
          data-inline="true" data-theme="b" 
          data-iconpos="left">Upload Sketch</a>
-      <a id="startCnvButton" data-icon="arrow-r" data-role="button" 
-         data-inline="true" data-theme="b" data-iconpos="left">Play</a>
-      <a id="stopCnvButton" data-icon="delete" data-role="button"
-         data-inline="true" data-theme="b" data-iconpos="left">Pause</a>
-      <a id="saveSoundCnvButton" data-icon="arrow-d" data-role="button"
-         data-inline="true" data-theme="b" data-iconpos="left">Save</a>
       <a href="#home" data-icon="home" data-role="button"
          data-inline="true" data-theme="b" data-iconpos="left">Home</a>
    </div><!-- header -->
@@ -318,8 +310,13 @@ $(document).ready(function(){
       <audio id="audio2" preload="auto">AUDIO</audio>
    </div> <!-- content -->
 
-   <div align="center">
-
+   <div align="center" id="navbar2" data-role="footer">
+      <a id="startCnvButton" data-icon="arrow-r" data-role="button" 
+         data-inline="true" data-theme="b" data-iconpos="left">Play</a>
+      <a id="stopCnvButton" data-icon="delete" data-role="button"
+         data-inline="true" data-theme="b" data-iconpos="left">Pause</a>
+      <a id="saveSoundCnvButton" data-icon="arrow-d" data-role="button"
+         data-inline="true" data-theme="b" data-iconpos="left">Save</a>
    </div> <!-- footer -->
 </div> <!-- sketch page-->
 
@@ -339,7 +336,7 @@ $(document).ready(function(){
         </fieldset>
    </div> <!-- content -->
 
-   <div align="center">
+   <div align="center" data-role="footer">
       <a href="#home" id="cancelButton" data-icon="back" data-role="button"
          data-inline="true" data-theme="b">Cancel</a>
       <a href="#home" id="saveButton" data-icon="check" data-role="button"
