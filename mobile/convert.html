@@ -26,7 +26,7 @@ $(document).ready(function(){
       ctx.fillStyle = "white";
       ctx.fillRect(0, 0, wd, ht);
       var i=0;
-      for (i = 10; i < wd; i += wd/3)
+      for (i = 10; i < wd; i += wd/4)
       {
          var w = wd / 2;
          var h = ht - i / 20;
@@ -35,7 +35,7 @@ $(document).ready(function(){
          grd.addColorStop(1,"white");
          ctx.fillStyle=grd;
          ctx.beginPath();  
-         ctx.moveTo(i, h-25);  
+         ctx.moveTo(i, h-50);  
          ctx.lineTo(i+w, h-50);  
          ctx.lineTo(i+w, h);  
          ctx.fill();  
