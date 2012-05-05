@@ -23,7 +23,7 @@ $(document).ready(function(){
       var offsetX = $('#canvas').position().left;
       var offsetY = $('#canvas').position().top;
 
-      ctx.fillStyle = "rgb(255,255,255)";
+      ctx.fillStyle = "white";
       ctx.fillRect(0, 0, wd, ht);
       var i=0;
       for (i = 10; i < wd; i += wd/3)
@@ -88,14 +88,8 @@ $(document).ready(function(){
         redraw();
       }, 15);
       
-document.getElementById('navbar1').style.display="none";
-document.getElementById('navbar2').style.display="none";
-//      $("#stopButton").attr("data-theme", "e").button("refresh");
-//      $("#startButton").attr("disabled", true).button("refresh");
-//      $("#saveSoundButton").attr("disabled", true).button("refresh");
-//      $("#stopCnvButton").attr("disabled", true).button("refresh");
-//      $("#startCnvButton").attr("disabled", true).button("refresh");
-//      $("#saveSoundCnvButton").attr("disabled", true).button("refresh");
+      document.getElementById('navbar1').style.display="none";
+      document.getElementById('navbar2').style.display="none";
 
       function uploadForm(fd, php) {
          var req = new XMLHttpRequest();
@@ -156,7 +150,7 @@ document.getElementById('navbar2').style.display="none";
 
       $("#clearButton").click(function(e) {
          e.preventDefault();
-         ctx.fillStyle = "rgb(255,255,255)";
+         ctx.fillStyle = "white";
          ctx.fillRect(0, 0, canvas.width, canvas.height);
       });
 
