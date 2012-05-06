@@ -22,9 +22,9 @@ $(document).ready(function(){
 //      canvas.height = $(window).height();
       var offsetX = $('#canvas').position().left;
       var offsetY = $('#canvas').position().top;
-
       ctx.fillStyle = "white";
       ctx.fillRect(0, 0, wd, ht);
+
       var i=0;
       for (i = 10; i < wd; i += wd/4)
       {
@@ -40,6 +40,14 @@ $(document).ready(function(){
          ctx.lineTo(i+w, h);  
          ctx.fill();  
       }
+
+      ctx.fillStyle = "blue";
+      ctx.font = "12px Arial";
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "center";
+      ctx.fillText("Draw something here and press Upload",wd/2,ht - 90);
+      ctx.fillStyle = "black";
+      ctx.fillText("Press Clear button to erase this.",wd/2,ht - 70);
   
       var colors  = ["red", "green", "yellow", "blue", "magenta", "orangered"];
 
@@ -170,6 +178,7 @@ $(document).ready(function(){
 
          var fd = new FormData(form); 
          uploadForm(fd, 'uppp.php');
+         $("#infoDiv").hide();
 
          $.each(this.files, function (i,file){
             if (!file.type.match(/image.*/)) {
@@ -269,6 +278,10 @@ $(document).ready(function(){
    </div><!-- header -->
 
    <div align="center" data-role="content">
+      <div id="infoDiv" align="center">
+          <h2>Upload an image to create sound of it, or press 
+             Sketch to draw something.</h2>
+      </div>
       <img id="srcImage" alt="" width="200px">
       <img id="resImage" alt="" width="200px">
 
