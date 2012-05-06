@@ -18,15 +18,22 @@ if(file_put_contents( $full_path, $decodata )) {
     $snd =  $full_path . '.wav';
     shell_exec('/var/www/uploads/bw1 -n -i' . $img . ' -o' . $snd);
 
-    shell_exec('lame --quiet ' . $snd);
+    $ua = $_SERVER['HTTP_USER_AGENT'];
+    if(preg_match('/Opera/i',$ua) || preg_match('/Firefox/i',$ua))
+    {
+       shell_exec('oggenc -Q ' . $snd);
+       $file =  $target_path . $tmp_name . '.ogg';
+       $s = "/uploads/data/" . $tmp_name . '.ogg';
+    } else {
+       shell_exec('lame --quiet ' . $snd);
+       $file = $snd . '.mp3';
+       $s = "/uploads/data/" . $tmp_name . '.wav.mp3';
+    }
 
-    $file = $snd . '.mp3';
     if (file_exists($file)) {
        shell_exec('rm ' . $snd);
-       $s = "/uploads/data/" . $tmp_name . '.wav.mp3';
-       $i = "";
-
-       echo " {\"snd\":\"".$s."\",\"img\":\"".$i."\"} ";
+       $i = ""; // no conversion for canvas image
+       echo " {\"snd\":\"".$s."\",\"img\":\"".$i."\",\"ua\":\"".$ua."\"} ";
     }
 
 } else{

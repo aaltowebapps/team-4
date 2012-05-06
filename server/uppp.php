@@ -30,14 +30,22 @@ if(move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $full_path)) {
 
     $snd =  $target_path . $tmp_name . '.wav';
     shell_exec('/var/www/uploads/bw1 -i' . $img . ' -o' . $snd);
-    shell_exec('lame --quiet ' . $snd);
+    $ua = $_SERVER['HTTP_USER_AGENT'];
+    if(preg_match('/Opera/i',$ua) || preg_match('/Firefox/i',$ua))
+    {
+       shell_exec('oggenc -Q ' . $snd); 
+       $file =  $target_path . $tmp_name . '.ogg';
+       $s = "/uploads/data/" . $tmp_name . '.ogg';
+    } else {
+       shell_exec('lame --quiet ' . $snd);
+       $file = $snd . '.mp3';
+       $s = "/uploads/data/" . $tmp_name . '.wav.mp3';
+    }
 
-    $file = $snd . '.mp3';
     if (file_exists($file)) {
        shell_exec('rm ' . $snd);
-       $s = "/uploads/data/" . $tmp_name . '.wav.mp3';
        $i = "/uploads/data/b-" . $tmp_name;
-       echo " {\"snd\":\"".$s."\",\"img\":\"".$i."\"} ";
+       echo " {\"snd\":\"".$s."\",\"img\":\"".$i."\",\"ua\":\"".$ua."\"} ";
     }
 
 } else{
