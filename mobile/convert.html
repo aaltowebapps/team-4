@@ -77,6 +77,7 @@ $(document).ready(function(){
         });
       });
       function redraw() {
+        var offsetY = $('#canvas').position().top;
         $.each(fingers, function(index, value) {
           if (value.oldX != value.x || value.oldY != value.y ) {
             ctx.beginPath();
